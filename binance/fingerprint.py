@@ -1,15 +1,16 @@
-import random
+import random, base64, json
 
 
 class Fingerprint:
-    def __init__(self):
-        ...
+    def __init__(self, user_agent):
+        self.user_agent = user_agent
 
     @staticmethod
     def _generate_unflagged():
-        return int(random.random() * 32) * 2 + 1  # "+1" means unflagged
+        return int(random.random() * 32) * 2 + 1  # even = flagged | uneven = unflagged
 
-    def generate_fingerprint(self):
+    @staticmethod
+    def generate_ev() -> dict:
         return {
             'wd': Fingerprint._generate_unflagged(),  # selenium check
             'im': Fingerprint._generate_unflagged(),  # mobile check
@@ -20,3 +21,29 @@ class Fingerprint:
             'wiinhe': 945,  # innerHeight
             'wiouhe': '1032'  # outerHeight
         }
+
+    @staticmethod
+    def generate_data() -> dict:
+        return {
+            "ev": Fingerprint.generate_ev(),
+            "be": "",
+            "dist": ""  # Answers seperated by "-" and pages by ","
+        }
+
+    def generate_device_id(self):
+        device_id = {
+            "screen_resolution": "1920,1080",
+            "available_screen_resolution": "1920,1032",
+            "system_version": "unknown",
+            "brand_model": "unknown",
+            "timezone": "",
+            "web_timezone": "Europe/Berlin",
+            "timezoneOffset": -120,
+            "user_agent": self.user_agent,
+            "list_plugin": "PDF Viewer,Chrome PDF Viewer,Chromium PDF Viewer,Microsoft Edge PDF Viewer,WebKit built-in PDF",
+            "platform": "Win32",
+            "webgl_vendor": "unknown",
+            "webgl_renderer": "unknown"
+        }
+
+        return base64.b64encode(json.dumps(device_id, separators=(",", ":")).encode("utf-8")).decode("utf-8")

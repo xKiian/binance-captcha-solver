@@ -143,3 +143,10 @@ class BinanceCrypto:
         for i in range(len(decoded)):
             xorStr += chr(ord(decoded[i]) ^ ord(derivedKey[i % len(derivedKey)]))
         return BinanceCrypto.rZ(xorStr)
+
+    @staticmethod
+    def calculate_s(aB):
+        aC = 0
+        for aD in range(len(aB)):
+            aC += ord(aB[aD])
+        return aC
