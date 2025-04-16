@@ -2,9 +2,9 @@
 """
 MIT LICENSE
 
-Big thanks to glizzykingdreko for making amazing solver
+Big thanks to glizzykingdreko for making this amazing solver
 
-i modified it a bit
+i modified it
 """
 import numpy as np
 import requests, cv2
@@ -27,13 +27,8 @@ class SlideSolver:
         self.background = image[0:height, puzzle_piece_width:width]
 
     def solve(self):
-        """
-        Find the matching position of a puzzle piece in a background image.
-        """
-
         self._split_piece()
 
-        # Apply edge detection
         edge_puzzle_piece = cv2.Canny(self.puzzle_piece, 100, 200)
         edge_background = cv2.Canny(self.background, 100, 200)
 
@@ -46,13 +41,9 @@ class SlideSolver:
         h, w = edge_puzzle_piece.shape[:2]
 
         center_x = top_left[0] + w // 2
-        center_y = top_left[1] + h // 2
-        bottom_right = (top_left[0] + w, top_left[1] + h)
 
-        cv2.rectangle(self.background, top_left, bottom_right, (0, 0, 255), 2)
         cv2.line(self.background, (center_x, 0), (center_x, edge_background_rgb.shape[0]), (0, 255, 0), 2)
-        cv2.line(self.background, (0, center_y), (edge_background_rgb.shape[1], center_y), (0, 255, 0), 2)
-        cv2.imwrite('output.png', self.background)
+        #cv2.imwrite('output.png', self.background)
 
         return center_x  - 31
 

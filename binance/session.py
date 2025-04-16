@@ -1,12 +1,16 @@
+import time
+
 from curl_cffi import requests
 from binance.fingerprint import Fingerprint
 from binance.crypto import BinanceCrypto
+from json import dumps
+
 
 class BinanceCaptcha:
     def __init__(self,
+                 security_check_response_validate_id: str = "",  # from precheck request
+                 biz_id: str = "register",  # from precheck request
                  user_agent: str = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36",
-                 security_check_response_validate_id: str = "f7a3259d639a41c7af235ec606afbd30", # from precheck request
-                 biz_id: str = "register"
                  ):
         self.session = requests.Session(
             impersonate="chrome116",
@@ -68,8 +72,10 @@ class BinanceCaptcha:
         return response.json()
 
     def _validate_captcha(self, captcha_data: dict) -> str:
-        data = self.device.generate_data()
-        data_encrypted = BinanceCrypto.encrypt(data, captcha_data["ek"])
+        data = self.device.generate_data("https://bin.bnbstatic.com" + captcha_data["path2"])
+        data_encrypted = BinanceCrypto.encrypt(dumps(data, separators=(",", ":")), captcha_data["ek"])
+
+        time.sleep(.5)
 
         payload = {
             'bizId': self.biz_id,
@@ -78,7 +84,8 @@ class BinanceCaptcha:
             'securityCheckResponseValidateId': self.security_check_response_validate_id,
             'clientType': 'web',
             'data': data_encrypted,
-            's': BinanceCrypto.calculate_s(self.biz_id + captcha_data["sig"] + data_encrypted + captcha_data.get("salt", "")),
+            's': BinanceCrypto.calculate_s(
+                self.biz_id + captcha_data["sig"] + data_encrypted + captcha_data.get("salt", "")),
             'sig': captcha_data["sig"],
         }
 
@@ -86,12 +93,12 @@ class BinanceCaptcha:
             'https://accounts.binance.com/bapi/composite/v1/public/antibot/validateCaptcha',
             data=payload,
         )
-        print(response.text)
         return response.json()["data"]["token"]
 
     def solve(self) -> str:
         captcha = self._get_captcha()
-        print(captcha)
-        return
+        if captcha["data"]["captchaType"] != "SLIDE":
+            raise NotImplementedError(f"Captcha type {captcha['data']['captchaType']} is not supported")
+
         token = self._validate_captcha(captcha["data"])
         return token

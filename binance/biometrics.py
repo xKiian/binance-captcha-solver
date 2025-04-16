@@ -1,5 +1,10 @@
 from random import randint, uniform, randrange
 from math import hypot
+from time import time
+
+"""
+I initially wanted to make a solver for type IMAGE, but my python version always gets type SLIDE lmfao
+"""
 
 TILE_SIZE = 110
 TILES = {  # "pos" is top left position
@@ -21,7 +26,7 @@ TILES = {  # "pos" is top left position
 
 
 class Point:
-    def __init__(self, x, y, button_id, rel_x, rel_y):
+    def __init__(self, x, y, button_id="", rel_x=-1, rel_y=-1):
         self.x = x
         self.y = y
         self.button_id = button_id
@@ -33,8 +38,7 @@ class Point:
 
 
 class MouseMovement:
-    def __init__(self, solution: dict):
-        self.sol = solution  # {0: [...], 1: [...]}
+    def __init__(self, ):
         self.points = []
         self.mm = []
 
@@ -42,9 +46,11 @@ class MouseMovement:
         self.cl_count = 0
         self.mu_count = 0
 
-    def generate_points(self):
+        self.first = True
+
+    def _generate_points_image(self, solution: dict):
         def gen(page: int):
-            for point in self.sol[page]:
+            for point in solution[page]:
                 tile = TILES[point]
                 rand_x = randint(10, 100)
                 rand_y = randint(10, 100)
@@ -73,6 +79,25 @@ class MouseMovement:
         next_page()
         gen(1)
         next_page()
+
+    def _generate_points_slide(self):
+        self.points.append(Point(
+            312 + randrange(-100, 100),
+            307 + randrange(-20, 20),
+            "", -1, -1)
+        )
+
+        self.points.append(Point(
+            757 + randrange(-10, 10),
+            354 + randrange(-20, 20),
+            "", -1, -1)
+        )
+
+        self.points.append(Point(
+            806 + randrange(-10, 10),
+            349 + randrange(-20, 20),
+            "", -1, -1)
+        )
 
     @staticmethod
     def connect_points(p1: Point, p2: Point):
@@ -110,14 +135,16 @@ class MouseMovement:
 
         return path
 
-    @staticmethod
-    def random_delay() -> int:
+    def random_delay(self) -> int:
+        if self.first:
+            self.first = False
+            return int(time() * 1000)
         # overwhelmingly 1
         return randint(2, 5) if randint(1, 5) % 2 == 0 else 1
 
-    def generate_mouse_movement_image(self):
-        if len(self.points) == 0:
-            self.generate_points()
+    def generate_mouse_movement_image(self, solution: dict):
+        self._generate_points_image(solution)
+
         for (i, point) in enumerate(self.points):
             if i == 0:
                 continue
@@ -128,12 +155,12 @@ class MouseMovement:
                     self.mm_count += 1
                     continue
                 self.mm_count += 1
-                self.mm.append(f"|mm|{mm[0]},{mm[1]}|{MouseMovement.random_delay()}")
+                self.mm.append(f"|mm|{mm[0]},{mm[1]}|{self.random_delay()}")
 
             self.mm.append(
                 f"{point.button_id}|md|{point.x},{point.y}|{randint(80, 300)}|{point.rel_x},{point.rel_y}")
             self.mm.append(
-                f"{point.button_id}|cl|{point.x},{point.y}|{MouseMovement.random_delay()}|{point.rel_x},{point.rel_y}")
+                f"{point.button_id}|cl|{point.x},{point.y}|{self.random_delay()}|{point.rel_x},{point.rel_y}")
 
             self.cl_count += 1
 
@@ -155,8 +182,42 @@ class MouseMovement:
             "el": self.mm.copy()
         }
 
+    def generate_mouse_movement_slide(self, pos):
+        self._generate_points_slide()
+        for (i, point) in enumerate(self.points):
+            if i == 0:
+                continue
 
-if __name__ == "__main__":
-    m = MouseMovement({0: [0, 2, 5, 7], 1: [1]})
-    m.generate_points()
-    print(m.generate_mouse_movement())
+            mms = MouseMovement.connect_points(self.points[i - 1], point)
+            for mm in mms:
+                if self.mm_count > 150:
+                    break
+                self.mm_count += 1
+                self.mm.append(f"|mm|{mm[0]},{mm[1]}|{self.random_delay()}|1")
+
+        th = MouseMovement.connect_points(
+            Point(43 + randrange(-2, 2), 16 + randrange(-2, 2)),
+            Point(29 + randrange(-2, 2), 18 + randrange(-2, 2)))
+
+        if len(th) > 30:
+            th = th[:30]
+
+        th_mm = []
+        for mm in th:
+            th_mm.append(f"mm|{mm[0]},{mm[1]}")
+
+        return {
+            "ec": {
+                "mm": randint(700, 800),
+                "md": 1,
+                "mu": 1
+            },
+            "el": self.mm.copy(),
+            "th": {
+                "el": th_mm.copy(),  # this can be empty btw
+                "si": {
+                    "w": 44,
+                    "h": 44
+                }
+            }
+        }

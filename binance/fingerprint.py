@@ -1,6 +1,7 @@
 import random, base64, json
 
 from binance.biometrics import MouseMovement
+from binance.slide import SlideSolver
 
 
 class Fingerprint:
@@ -25,11 +26,13 @@ class Fingerprint:
         }
 
     @staticmethod
-    def generate_data() -> dict:
+    def generate_data(url: str) -> dict:
+        dist = SlideSolver(url).solve()
         return {
             "ev": Fingerprint.generate_ev(),
-            "be": MouseMovement().generate_mouse_movement(),
-            "dist": ""  # Answers seperated by "-" and pages by ","
+            "be": MouseMovement().generate_mouse_movement_slide(dist),
+            "dist": dist,
+            "imageWidth": "310"
         }
 
     def generate_device_id(self):
