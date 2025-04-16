@@ -1,5 +1,7 @@
 import random, base64, json
 
+from binance.biometrics import MouseMovement
+
 
 class Fingerprint:
     def __init__(self, user_agent):
@@ -15,7 +17,7 @@ class Fingerprint:
             'wd': Fingerprint._generate_unflagged(),  # selenium check
             'im': Fingerprint._generate_unflagged(),  # mobile check
             'de': "",
-            'prde': ",".join([str(Fingerprint._generate_unflagged()) for i in range(4)]),  # 4 checks
+            'prde': ",".join([str(Fingerprint._generate_unflagged()) for _ in range(4)]),  # 4 checks
             'brla': Fingerprint._generate_unflagged(),
             'pl': "Win32",  # platform
             'wiinhe': 945,  # innerHeight
@@ -26,7 +28,7 @@ class Fingerprint:
     def generate_data() -> dict:
         return {
             "ev": Fingerprint.generate_ev(),
-            "be": "",
+            "be": MouseMovement().generate_mouse_movement(),
             "dist": ""  # Answers seperated by "-" and pages by ","
         }
 

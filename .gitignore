@@ -1,4 +1,4 @@
 rev
 *.pyc
-t.py
+binance/t.py
 mm.json

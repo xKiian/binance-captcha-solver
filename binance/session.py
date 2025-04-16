@@ -5,7 +5,7 @@ from binance.crypto import BinanceCrypto
 class BinanceCaptcha:
     def __init__(self,
                  user_agent: str = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36",
-                 security_check_response_validate_id: str = "", # from precheck request
+                 security_check_response_validate_id: str = "f7a3259d639a41c7af235ec606afbd30", # from precheck request
                  biz_id: str = "register"
                  ):
         self.session = requests.Session(
@@ -91,5 +91,7 @@ class BinanceCaptcha:
 
     def solve(self) -> str:
         captcha = self._get_captcha()
+        print(captcha)
+        return
         token = self._validate_captcha(captcha["data"])
         return token
