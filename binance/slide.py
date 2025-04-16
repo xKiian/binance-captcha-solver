@@ -23,7 +23,6 @@ class SlideSolver:
         height, width = image.shape[:2]
 
         self.puzzle_piece = image[0:height, 0:puzzle_piece_width]
-
         self.background = image[0:height, puzzle_piece_width:width]
 
     def solve(self):

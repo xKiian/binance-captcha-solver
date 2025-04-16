@@ -192,19 +192,13 @@ class MouseMovement:
             for mm in mms:
                 if self.mm_count > 150:
                     break
+
                 self.mm_count += 1
                 self.mm.append(f"|mm|{mm[0]},{mm[1]}|{self.random_delay()}|1")
 
         th = MouseMovement.connect_points(
             Point(43 + randrange(-2, 2), 16 + randrange(-2, 2)),
             Point(29 + randrange(-2, 2), 18 + randrange(-2, 2)))
-
-        if len(th) > 30:
-            th = th[:30]
-
-        th_mm = []
-        for mm in th:
-            th_mm.append(f"mm|{mm[0]},{mm[1]}")
 
         return {
             "ec": {
@@ -214,7 +208,7 @@ class MouseMovement:
             },
             "el": self.mm.copy(),
             "th": {
-                "el": th_mm.copy(),  # this can be empty btw
+                "el": [f"mm|{mm[0]},{mm[1]}" for mm in th[:30]],  # this can be empty btw
                 "si": {
                     "w": 44,
                     "h": 44

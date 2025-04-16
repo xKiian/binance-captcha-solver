@@ -37,11 +37,16 @@ class BinanceCaptcha:
         self.security_check_response_validate_id = security_check_response_validate_id
         self.biz_id = biz_id
         self.device = Fingerprint(self.user_agent)
-        self.sv = "20220906"  # should be static
+        self.sv = "20220906"  # probably static
 
     def _get_captcha(self) -> dict:
-        payload = f"bizId={self.biz_id}&sv={self.sv}&lang=en&securityCheckResponseValidateId={self.security_check_response_validate_id}&clientType=web"
-
+        payload = {
+            "bizId": self.biz_id,
+            "sv": self.sv,
+            "lang": "en",
+            "securityCheckResponseValidateId": self.security_check_response_validate_id,
+            "clientType": "web"
+        }
         self.session.headers = {
             'accept': '*/*',
             'accept-language': 'en-US,en;q=0.9',
@@ -55,7 +60,6 @@ class BinanceCaptcha:
             'origin': 'https://accounts.binance.com',
             'pragma': 'no-cache',
             'priority': 'u=1, i',
-            'referer': 'https://accounts.binance.com/en/register?',
             # 'sec-ch-ua': '"Google Chrome";v="135", "Not-A.Brand";v="8", "Chromium";v="135"',
             'sec-ch-ua-mobile': '?0',
             'sec-ch-ua-platform': '"Windows"',
@@ -85,7 +89,7 @@ class BinanceCaptcha:
             'clientType': 'web',
             'data': data_encrypted,
             's': BinanceCrypto.calculate_s(
-                self.biz_id + captcha_data["sig"] + data_encrypted + captcha_data.get("salt", "")),
+                self.biz_id + captcha_data["sig"] + data_encrypted + captcha_data.get("salt", "")), # they don't even check this
             'sig': captcha_data["sig"],
         }
 
