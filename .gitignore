@@ -2,3 +2,4 @@ rev
 *.pyc
 binance/t.py
 mm.json
+.idea
