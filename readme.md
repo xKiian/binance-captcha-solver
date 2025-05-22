@@ -24,6 +24,13 @@ print(token)
 
 ---
 
+## Article
+
+(https://blog.castle.io/what-a-binance-captcha-solver-tells-us-about-todays-bot-threats/)[here] is an article i found about my repository. 
+Not everything said there is true, but it's great if you don't understand my code.
+
+---
+
 ## License
 
 This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details.
